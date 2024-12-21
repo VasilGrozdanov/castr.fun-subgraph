@@ -1,0 +1,38 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FeeAccount
+    network: sepolia
+    source:
+      address: "0xD57B1db073B7669BB7057932C0D5fd98D7Dfe76D"
+      abi: FeeAccount
+      startBlock: 7326618
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Initialized
+        - MigratorUpdated
+        - OwnershipTransferred
+        - Rewarded
+        - Upgraded
+      abis:
+        - name: FeeAccount
+          file: ./abis/FeeAccount.json
+      eventHandlers:
+        - event: Initialized(uint64)
+          handler: handleInitialized
+        - event: MigratorUpdated(indexed address)
+          handler: handleMigratorUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Rewarded(indexed address,indexed address,uint256,uint256)
+          handler: handleRewarded
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+      file: ./src/fee-account.ts
