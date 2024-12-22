@@ -1,5 +1,69 @@
-type ExampleEntity @entity {
-  id: Bytes!
-  count: BigInt!
-  version: BigInt! # uint64
+type LatestReward @entity {
+  id: String!
+  rewarded: [Reward!]! # rewarded pools
+  totalAmount: BigInt! # uint256
+  blockTimestamp: BigInt! # Timestamp
+}
+
+type Reward @entity(immutable: true) {
+  id: Bytes! # token address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  blockTimestamp: BigInt! # Timestamp
+}
+
+type Counter @entity{
+  id: String!
+  value: BigInt!
+}
+
+type LiquidityLock @entity(immutable: true){
+  id: String! # uint256 - the lock id
+  tokenId: BigInt! # uint256
+  timestamp: BigInt! # uint256
+}
+
+type MigratorCreatedPool @entity(immutable: true){
+  id: Bytes! # address
+  token0: Bytes! # address
+  token1: Bytes! # address
+  timestamp: BigInt! # uint256
+  sqrtPriceX96: BigInt! # uint160
+}
+
+type MigratedPool @entity(immutable: true){
+  id: Bytes! # address
+  lockId: BigInt! # uint256
+  tokenId: BigInt! # uint256
+  amount0: BigInt! # uint256
+  amount1: BigInt! # uint256
+  liquidity: BigInt! # uint256
+  timestamp: BigInt! # uint256
+}
+
+type HistoricPool @entity(immutable: true){
+  id: Bytes! # address
+  tokenAddress: Bytes! # address 
+  tick: Int! # int24
+  tickCumulativeStart: BigInt! # int54
+  startTickTimestamp: BigInt! # Timestamp
+  tickCumulativeEnd: BigInt! # int54
+  endTickTimestamp: BigInt! # Timestamp
+  twat: BigInt! # int56 expected time-weighted geometric mean price
+  sqrtPriceX96: BigInt! # uint160
+  blockTimestamp: BigInt! # Timestamp
+}
+
+type Pool @entity {
+  id: Bytes! # address
+  tokenAddress: Bytes! # address 
+  tick: Int! # int24
+  tickCumulativeStart: BigInt! # int54
+  startTickTimestamp: BigInt! # Timestamp
+  tickCumulativeEnd: BigInt! # int54
+  endTickTimestamp: BigInt! # Timestamp
+  twat: BigInt! # int56 expected time-weighted geometric mean price
+  sqrtPriceX96: BigInt! # uint160
+  blockTimestamp: BigInt! # Timestamp
+  isRewarded: Boolean!
 }

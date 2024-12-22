@@ -1,71 +1,66 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  FeeAccount,
-  Initialized,
-  MigratorUpdated,
-  OwnershipTransferred,
-  Rewarded,
-  Upgraded
+  Rewarded as RewardEvent,
+  MigratorUpdated as MigratorUpdatedEvent,
 } from "../generated/FeeAccount/FeeAccount"
-import { ExampleEntity } from "../generated/schema"
+import {
+  Pool,
+  Reward,
+  LatestReward
+} from "../generated/schema"
+import { UniswapV3Migrator } from "../generated/templates"
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { ONE } from "./constants";
 
-export function handleInitialized(event: Initialized): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from)
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from)
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+/**
+* Handles a reward event by updating the pool's isRewarded property, creating
+* a new Reward entity, and updating the LatestReward entity.
+*
+* All rewarded pools must be rewarded on the same block.
+* If the reward's timestamp is later than the latest reward's timestamp, the
+* function resets the list of rewarded pools and the total amount.
+*
+* @param event - The reward event containing the pool address, token address,
+* amount, and timestamp.
+*/
+export function handleRewarded(event: RewardEvent): void {
+  let latestReward = LatestReward.load(ONE)
+  if (latestReward == null) {
+    latestReward = new LatestReward(ONE)
+    latestReward.totalAmount = BigInt.zero()
+    latestReward.rewarded = new Array<Bytes>()
+    latestReward.blockTimestamp = event.block.timestamp
+    latestReward.save()
+  }
+  let pool = Pool.load(event.params.pool)
+  if (pool == null) {
+    return;
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
+  pool.isRewarded = true
+  let reward = new Reward(event.params.pool)
+  reward.token = event.params.token
+  reward.amount = event.params.amount
+  reward.blockTimestamp = event.params.timestamp
+  if (reward.blockTimestamp > latestReward.blockTimestamp) {
+    latestReward.rewarded = new Array<Bytes>()
+    latestReward.totalAmount = BigInt.zero()
+    latestReward.blockTimestamp = event.block.timestamp
+  }
+  latestReward.rewarded.push(reward.id)
+  latestReward.totalAmount = latestReward.totalAmount.plus(reward.amount)
 
-  // Entity fields can be set based on event parameters
-  entity.version = event.params.version
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.UPGRADE_INTERFACE_VERSION(...)
-  // - contract.additivePercent(...)
-  // - contract.basePercent(...)
-  // - contract.checkUpkeep(...)
-  // - contract.collectRewardPercent(...)
-  // - contract.competingTokens(...)
-  // - contract.getCompetingTokenRefferences(...)
-  // - contract.owner(...)
-  // - contract.proxiableUUID(...)
-  // - contract.rewardResolver(...)
-  // - contract.swapRouter02(...)
-  // - contract.treasury(...)
-  // - contract.uniswapV3Migrator(...)
+  pool.save()
+  reward.save()
+  latestReward.save()
 }
 
-export function handleMigratorUpdated(event: MigratorUpdated): void {}
+/**
+ * Handles a MigratorUpdated event by creating a new UniswapV3Migrator entity with
+ * the new address.
+ *
+ * @param event - The MigratorUpdated event containing the new address.
+ */
+export function handleMigratorUpdated(event: MigratorUpdatedEvent): void {
+  UniswapV3Migrator.create(event.params.newMigrator)
+}
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handleRewarded(event: Rewarded): void {}
-
-export function handleUpgraded(event: Upgraded): void {}
