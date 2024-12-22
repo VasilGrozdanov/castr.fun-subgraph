@@ -38,15 +38,16 @@ export function handleBurn(event: BurnEvent): void {
   }
 
   let timeDiff = BigInt.zero()
+  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
+  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
     timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
+    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
   }
 
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
-  let tick = BigInt.fromI32(pool.tick)
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
@@ -77,15 +78,17 @@ export function handleMint(event: MintEvent): void {
   }
 
   let timeDiff = BigInt.zero()
+  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
+  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
     timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
+    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
   }
 
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
-  let tick = BigInt.fromI32(pool.tick)
+
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
@@ -127,16 +130,18 @@ export function handleSwap(event: SwapEvent): void {
   }
 
   let timeDiff = BigInt.zero()
+  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
     timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
+    let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
+    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
   }
 
   pool.tick = event.params.tick
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
-  let tick = BigInt.fromI32(pool.tick)
+  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
 
   let dayInSeconds = 86400
@@ -150,10 +155,9 @@ export function handleSwap(event: SwapEvent): void {
   if (expectedCumulativeDelta.lt(BigInt.fromI32(0)) && !expectedCumulativeDelta.mod(timeDiff).isZero()) {
     twat = twat.minus(BigInt.fromI32(1))
   }
-  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
   // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
   // Price_token0/token1 = 1.0001 ^ -tick
-  pool.twat = twat.times(BigInt.fromI32(sign))
+  // pool.twat = twat.times(BigInt.fromI32(sign))
   let sqrtPriceX96 = event.params.sqrtPriceX96
   if (sign === -1) {
     // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
