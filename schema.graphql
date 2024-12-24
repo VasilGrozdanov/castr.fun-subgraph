@@ -65,5 +65,6 @@ type Pool @entity {
   twat: BigInt! # int56 expected time-weighted geometric mean price
   sqrtPriceX96: BigInt! # uint160
   blockTimestamp: BigInt! # Timestamp
+  creationTimestamp: BigInt! # Timestamp
   isRewarded: Boolean!
 }

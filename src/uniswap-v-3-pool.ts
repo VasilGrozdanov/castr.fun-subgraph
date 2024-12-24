@@ -155,12 +155,12 @@ export function handleSwap(event: SwapEvent): void {
   if (expectedCumulativeDelta.lt(BigInt.fromI32(0)) && !expectedCumulativeDelta.mod(timeDiff).isZero()) {
     twat = twat.minus(BigInt.fromI32(1))
   }
-  // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
-  // Price_token0/token1 = 1.0001 ^ -tick
+  // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_[token0/token1] = 1 / Price_[token1/token0] =>
+  // Price_[token0/token1] = 1.0001 ^ -tick
   // pool.twat = twat.times(BigInt.fromI32(sign))
   let sqrtPriceX96 = event.params.sqrtPriceX96
   if (sign === -1) {
-    // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
+    // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_[token1/token0] = 1 / Price_[token0/token1] =>
     // sqrtPriceX96Reverse = 2^192 / ( sqrt(Price_token1/token0) * 2^96 ) = 2^192 / sqrtPriceX96 
     sqrtPriceX96 = BigInt.fromI32(2).pow(192).div(sqrtPriceX96)
   }
