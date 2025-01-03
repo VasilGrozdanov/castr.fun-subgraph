@@ -164,7 +164,7 @@ export function handleSwap(event: SwapEvent): void {
 
   const twatString = pool.twat.abs().toString().padStart(8, "0");
   const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
-  const tickString = Math.abs(pool.tick).toString().padStart(8, "0");
+  const tickString = Math.abs(pool.tick).toString().padStart(6, "0");
   pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}`;
 
   saveHistoricalPool(pool)
