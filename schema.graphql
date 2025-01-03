@@ -49,9 +49,10 @@ type HistoricPool @entity(immutable: true){
   startTickTimestamp: BigInt! # Timestamp
   tickCumulativeEnd: BigInt! # int54
   endTickTimestamp: BigInt! # Timestamp
-  twat: BigInt! # int56 expected time-weighted geometric mean price
+  twat: BigInt! # int56 expected time-weighted geometric mean tick
   sqrtPriceX96: BigInt! # uint160
   blockTimestamp: BigInt! # Timestamp
+  score: String! # combined twat, sqrtPriceX96 and tick for comparing pools. Made for lexicographic comparison
 }
 
 type Pool @entity {
@@ -62,9 +63,10 @@ type Pool @entity {
   startTickTimestamp: BigInt! # Timestamp
   tickCumulativeEnd: BigInt! # int54
   endTickTimestamp: BigInt! # Timestamp
-  twat: BigInt! # int56 expected time-weighted geometric mean price
+  twat: BigInt! # int56 expected time-weighted geometric mean tick
   sqrtPriceX96: BigInt! # uint160
   blockTimestamp: BigInt! # Timestamp
   creationTimestamp: BigInt! # Timestamp
   isRewarded: Boolean!
+  score: String! # combined twat, sqrtPriceX96 and tick for comparing pools. Made for lexicographic comparison
 }

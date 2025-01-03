@@ -38,16 +38,15 @@ export function handleBurn(event: BurnEvent): void {
   }
 
   let timeDiff = BigInt.zero()
-  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
-  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
     timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
+    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
   }
 
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
+  const tick = BigInt.fromI32(pool.tick)
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
@@ -78,17 +77,15 @@ export function handleMint(event: MintEvent): void {
   }
 
   let timeDiff = BigInt.zero()
-  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
-  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
     timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
+    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
   }
 
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
-
+  const tick = BigInt.fromI32(pool.tick)
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
@@ -130,42 +127,45 @@ export function handleSwap(event: SwapEvent): void {
   }
 
   let timeDiff = BigInt.zero()
-  let sign = pool.tokenAddress.toHexString() > WETH.toHexString() ? 1 : -1
   if (pool.startTickTimestamp.lt(latestReward.blockTimestamp)) {
-    timeDiff = latestReward.blockTimestamp.minus(pool.startTickTimestamp)
+    timeDiff = latestReward.blockTimestamp.minus(pool.endTickTimestamp)
     pool.startTickTimestamp = latestReward.blockTimestamp
-    let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
-    pool.tickCumulativeStart = pool.tickCumulativeStart.plus(timeDiff.times(tick))
+    pool.tickCumulativeStart = pool.tickCumulativeEnd.plus(timeDiff.times(BigInt.fromI32(pool.tick)))
   }
 
   pool.tick = event.params.tick
   timeDiff = event.block.timestamp.minus(pool.endTickTimestamp)
   pool.endTickTimestamp = event.block.timestamp
-  let tick = BigInt.fromI32(pool.tick).times(BigInt.fromI32(sign))
+  const tick = BigInt.fromI32(pool.tick)
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
 
-  let dayInSeconds = 86400
-  let expectedEndTimestamp = latestReward.blockTimestamp.plus(BigInt.fromI32(dayInSeconds))
+  const dayInSeconds = 86400
+  const expectedEndTimestamp = latestReward.blockTimestamp.plus(BigInt.fromI32(dayInSeconds))
   timeDiff = expectedEndTimestamp.minus(pool.endTickTimestamp)
 
-  let expectedCumulativeEnd = pool.tickCumulativeEnd.plus(tick.times(timeDiff))
-  let expectedCumulativeDelta = expectedCumulativeEnd.minus(pool.tickCumulativeStart)
+  const expectedCumulativeEnd = pool.tickCumulativeEnd.plus(tick.times(timeDiff))
+  const expectedCumulativeDelta = expectedCumulativeEnd.minus(pool.tickCumulativeStart)
   timeDiff = expectedEndTimestamp.minus(pool.startTickTimestamp)
   let twat = expectedCumulativeDelta.div(timeDiff)
   if (expectedCumulativeDelta.lt(BigInt.fromI32(0)) && !expectedCumulativeDelta.mod(timeDiff).isZero()) {
     twat = twat.minus(BigInt.fromI32(1))
   }
-  // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_[token0/token1] = 1 / Price_[token1/token0] =>
-  // Price_[token0/token1] = 1.0001 ^ -tick
-  // pool.twat = twat.times(BigInt.fromI32(sign))
+  // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
+  // Price_token0/token1 = 1.0001 ^ -tick
+  pool.twat = twat
   let sqrtPriceX96 = event.params.sqrtPriceX96
-  if (sign === -1) {
-    // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_[token1/token0] = 1 / Price_[token0/token1] =>
+  if (pool.tokenAddress.toHexString() < WETH.toHexString()) {
+    // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
     // sqrtPriceX96Reverse = 2^192 / ( sqrt(Price_token1/token0) * 2^96 ) = 2^192 / sqrtPriceX96 
     sqrtPriceX96 = BigInt.fromI32(2).pow(192).div(sqrtPriceX96)
   }
   pool.sqrtPriceX96 = sqrtPriceX96
   pool.blockTimestamp = event.block.timestamp
+
+  const twatString = pool.twat.abs().toString().padStart(8, "0");
+  const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
+  const tickString = Math.abs(pool.tick).toString().padStart(8, "0");
+  pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}`;
 
   saveHistoricalPool(pool)
   pool.save()
@@ -186,9 +186,9 @@ function saveHistoricalPool(pool: Pool): void {
   }
 
   counter.value = counter.value.plus(BigInt.fromI32(1))
-  let poolTimestampBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(pool.blockTimestamp));
-  let counterBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(counter.value));
-  let uniqueID = pool.id.concat(poolTimestampBytes).concat(counterBytes);
+  const poolTimestampBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(pool.blockTimestamp));
+  const counterBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(counter.value));
+  const uniqueID = pool.id.concat(poolTimestampBytes).concat(counterBytes);
 
 
   let historicPool = new HistoricPool(uniqueID)
@@ -201,6 +201,7 @@ function saveHistoricalPool(pool: Pool): void {
   historicPool.twat = pool.twat
   historicPool.sqrtPriceX96 = pool.sqrtPriceX96
   historicPool.blockTimestamp = pool.blockTimestamp
+  historicPool.score = pool.score
 
   historicPool.save()
   counter.save()
