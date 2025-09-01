@@ -58,6 +58,7 @@ export function handleLiquidityLocked(event: LiquidityLockedEvent): void {
 export function handlePoolMigrated(event: PoolMigratedEvent): void {
     let poolMigrated = new MigratedPool(event.params.pool)
     poolMigrated.tokenId = event.params.tokenId
+    poolMigrated.tokenAddress = event.params.token
     poolMigrated.lockId = event.params.lockId
     poolMigrated.amount0 = event.params.amount0
     poolMigrated.amount1 = event.params.amount1

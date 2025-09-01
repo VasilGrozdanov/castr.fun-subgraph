@@ -33,6 +33,7 @@ type MigratorCreatedPool @entity(immutable: true){
 
 type MigratedPool @entity(immutable: true){
   id: Bytes! # address
+  tokenAddress: Bytes! # address 
   lockId: BigInt! # uint256
   tokenId: BigInt! # uint256
   amount0: BigInt! # uint256
