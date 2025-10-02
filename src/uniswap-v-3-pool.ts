@@ -139,8 +139,10 @@ export function handleSwap(event: SwapEvent): void {
   const tick = BigInt.fromI32(pool.tick)
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
 
-  const dayInSeconds = 86400
-  const expectedEndTimestamp = latestReward.blockTimestamp.plus(BigInt.fromI32(dayInSeconds))
+  const dayInSeconds = 86_400
+  timeDiff = event.block.timestamp.minus(latestReward.blockTimestamp)
+  const passedDays = timeDiff.div(BigInt.fromI32(dayInSeconds))
+  const expectedEndTimestamp = latestReward.blockTimestamp.plus((passedDays.plus(BigInt.fromI32(1))).times(BigInt.fromI32(dayInSeconds)))
   timeDiff = expectedEndTimestamp.minus(pool.endTickTimestamp)
 
   const expectedCumulativeEnd = pool.tickCumulativeEnd.plus(tick.times(timeDiff))

@@ -8,9 +8,9 @@ dataSources:
     name: FeeAccount
     network: sepolia
     source:
-      address: "0xD57B1db073B7669BB7057932C0D5fd98D7Dfe76D"
+      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F"
       abi: FeeAccount
-      startBlock: 7326618
+      startBlock: 9018158
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -51,7 +51,7 @@ templates:
         handler: handlePoolCreated
       - event: LiquidityLocked(indexed uint256,uint256,uint256)
         handler: handleLiquidityLocked
-      - event: PoolMigrated(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
+      - event: PoolMigrated(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
         handler: handlePoolMigrated
     file: ./src/uniswap-v-3-migrator.ts
 - kind: ethereum
