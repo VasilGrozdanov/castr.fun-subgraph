@@ -18,8 +18,8 @@ type Counter @entity{
 }
 
 type LiquidityLock @entity(immutable: true){
-  id: String! # uint256 - the lock id
-  tokenId: BigInt! # uint256
+  id: String! # uint256 - the token id
+  locker: Bytes! # address
   timestamp: BigInt! # uint256
 }
 
@@ -34,7 +34,7 @@ type MigratorCreatedPool @entity(immutable: true){
 type MigratedPool @entity(immutable: true){
   id: Bytes! # address
   tokenAddress: Bytes! # address 
-  lockId: BigInt! # uint256
+  locker: Bytes! # address
   tokenId: BigInt! # uint256
   amount0: BigInt! # uint256
   amount1: BigInt! # uint256

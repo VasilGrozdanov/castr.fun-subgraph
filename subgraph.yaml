@@ -8,9 +8,9 @@ dataSources:
     name: FeeAccount
     network: sepolia
     source:
-      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F"
+      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F" #TODO: update when launching
       abi: FeeAccount
-      startBlock: 9018158
+      startBlock: 9018158 #TODO: update when launching
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -28,12 +28,33 @@ dataSources:
         - event: MigratorUpdated(indexed address)
           handler: handleMigratorUpdated
       file: ./src/fee-account.ts
+  - kind: ethereum
+    name: LiquidityLocker
+    network: sepolia
+    source:
+      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F" #TODO: update when launching
+      abi: ILiquidityLocker
+      startBlock: 9018158 #TODO: update when launching
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityLock
+        - MigratedPool
+      abis:
+        - name: ILiquidityLocker
+          file: ./abis/ILiquidityLocker.json
+      eventHandlers:
+        - event: LiquidityMigrated(indexed uint256,indexed address,indexed address)
+          handler: handleLiquidityMigrated
+      file: ./src/liquidity-locker.ts
 templates:
 - kind: ethereum
-  name: UniswapV3Migrator
+  name: LiquidityMigrator
   network: sepolia
   source:
-    abi: UniswapV3Migrator
+    abi: ILiquidityMigrator
   mapping:
     kind: ethereum/events
     apiVersion: 0.0.7
@@ -44,21 +65,21 @@ templates:
       - LiquidityLock
       - MigratedPool
     abis:
-      - name: UniswapV3Migrator
-        file: ./abis/UniswapV3Migrator.json
+      - name: ILiquidityMigrator
+        file: ./abis/ILiquidityMigrator.json
     eventHandlers:
       - event: PoolCreated(indexed address,indexed address,indexed address,int24,uint256,uint160)
         handler: handlePoolCreated
-      - event: LiquidityLocked(indexed uint256,uint256,uint256)
+      - event: LiquidityLocked(indexed address,uint256,uint256)
         handler: handleLiquidityLocked
-      - event: PoolMigrated(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
+      - event: PoolMigrated(indexed address,indexed address,uint256,address,uint256,uint256,uint256,uint256)
         handler: handlePoolMigrated
-    file: ./src/uniswap-v-3-migrator.ts
+    file: ./src/liquidity-migrator.ts
 - kind: ethereum
-  name: UniswapV3Pool
+  name: CLPool
   network: sepolia
   source:
-    abi: UniswapV3Pool
+    abi: ICLPool
   mapping:
     kind: ethereum/events
     apiVersion: 0.0.7
@@ -69,8 +90,8 @@ templates:
       - Counter
       - LatestReward
     abis:
-      - name: UniswapV3Pool
-        file: ./abis/UniswapV3Pool.json
+      - name: ICLPool
+        file: ./abis/ICLPool.json
     eventHandlers:
       - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
         handler: handleBurn
@@ -78,4 +99,4 @@ templates:
         handler: handleMint
       - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
         handler: handleSwap
-    file: ./src/uniswap-v-3-pool.ts
+    file: ./src/aerodrome-cl-pool.ts

@@ -7,7 +7,7 @@ import {
   Reward,
   LatestReward
 } from "../generated/schema"
-import { UniswapV3Migrator } from "../generated/templates"
+import { LiquidityMigrator } from "../generated/templates"
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { ONE } from "./constants";
 
@@ -37,7 +37,7 @@ export function handleRewarded(event: RewardEvent): void {
   }
 
   pool.isRewarded = true
-  let reward = new Reward(event.params.pool)
+  const reward = new Reward(event.params.pool)
   reward.token = event.params.token
   reward.amount = event.params.amount
   reward.blockTimestamp = event.params.timestamp
@@ -55,12 +55,12 @@ export function handleRewarded(event: RewardEvent): void {
 }
 
 /**
- * Handles a MigratorUpdated event by creating a new UniswapV3Migrator entity with
+ * Handles a MigratorUpdated event by creating a new LiquidityMigrator entity with
  * the new address.
  *
  * @param event - The MigratorUpdated event containing the new address.
  */
 export function handleMigratorUpdated(event: MigratorUpdatedEvent): void {
-  UniswapV3Migrator.create(event.params.newMigrator)
+  LiquidityMigrator.create(event.params.newMigrator)
 }
 

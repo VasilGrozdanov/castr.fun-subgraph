@@ -2,7 +2,7 @@ import {
   Burn as BurnEvent,
   Mint as MintEvent,
   Swap as SwapEvent
-} from "../generated/templates/UniswapV3Pool/UniswapV3Pool"
+} from "../generated/templates/CLPool/ICLPool"
 import {
   Pool,
   HistoricPool,
@@ -13,7 +13,7 @@ import { BigInt, Bytes, ByteArray } from "@graphprotocol/graph-ts";
 import { ONE, WETH, GLOBAL } from "./constants";
 
 /**
- * Handles a burn event in the Uniswap V3 pool.
+ * Handles a burn event in the Aerodrome CL pool.
  *
  * This function processes a burn event by updating the pool's tick cumulative
  * values and timestamps. It loads the pool and the latest reward data from
@@ -31,8 +31,8 @@ import { ONE, WETH, GLOBAL } from "./constants";
  */
 
 export function handleBurn(event: BurnEvent): void {
-  let pool = Pool.load(event.address)
-  let latestReward = LatestReward.load(ONE)
+  const pool = Pool.load(event.address)
+  const latestReward = LatestReward.load(ONE)
   if (pool == null || latestReward == null) {
     return;
   }
@@ -70,8 +70,8 @@ export function handleBurn(event: BurnEvent): void {
  * @param event - The mint event containing the address of the pool and other relevant data.
  */
 export function handleMint(event: MintEvent): void {
-  let pool = Pool.load(event.address)
-  let latestReward = LatestReward.load(ONE)
+  const pool = Pool.load(event.address)
+  const latestReward = LatestReward.load(ONE)
   if (pool == null || latestReward == null) {
     return;
   }
@@ -120,8 +120,8 @@ export function handleMint(event: MintEvent): void {
  * relevant data.
  */
 export function handleSwap(event: SwapEvent): void {
-  let pool = Pool.load(event.address)
-  let latestReward = LatestReward.load(ONE)
+  const pool = Pool.load(event.address)
+  const latestReward = LatestReward.load(ONE)
   if (pool == null || latestReward == null) {
     return;
   }
@@ -193,7 +193,7 @@ function saveHistoricalPool(pool: Pool): void {
   const uniqueID = pool.id.concat(poolTimestampBytes).concat(counterBytes);
 
 
-  let historicPool = new HistoricPool(uniqueID)
+  const historicPool = new HistoricPool(uniqueID)
   historicPool.tokenAddress = pool.tokenAddress
   historicPool.tick = pool.tick
   historicPool.tickCumulativeStart = pool.tickCumulativeStart
