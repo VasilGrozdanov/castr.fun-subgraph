@@ -8,7 +8,9 @@
     "create-local": "graph create --node http://localhost:8020/ test",
     "remove-local": "graph remove --node http://localhost:8020/ test",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test",
-    "test": "graph test"
+    "test": "graph test",
+    "goldsky-deploy": "goldsky subgraph deploy test-subgraph-sepolia/2.0.0 --path .",
+    "goldsky-create-tag": "goldsky subgraph tag create test-subgraph-sepolia/2.0.0 --tag development"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.89.0",

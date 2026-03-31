@@ -5,7 +5,6 @@ import {
 } from "../generated/templates/CLPool/ICLPool"
 import {
   Pool,
-  HistoricPool,
   Counter,
   LatestReward
 } from "../generated/schema"
