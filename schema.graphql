@@ -42,20 +42,6 @@ type MigratedPool @entity(immutable: true){
   timestamp: BigInt! # uint256
 }
 
-type HistoricPool @entity(immutable: true){
-  id: Bytes! # address
-  tokenAddress: Bytes! # address 
-  tick: Int! # int24
-  tickCumulativeStart: BigInt! # int54
-  startTickTimestamp: BigInt! # Timestamp
-  tickCumulativeEnd: BigInt! # int54
-  endTickTimestamp: BigInt! # Timestamp
-  twat: BigInt! # int56 expected time-weighted geometric mean tick
-  sqrtPriceX96: BigInt! # uint160
-  blockTimestamp: BigInt! # Timestamp
-  score: String! # combined twat, sqrtPriceX96 and tick for comparing pools. Made for lexicographic comparison
-}
-
 type Pool @entity {
   id: Bytes! # address
   tokenAddress: Bytes! # address 

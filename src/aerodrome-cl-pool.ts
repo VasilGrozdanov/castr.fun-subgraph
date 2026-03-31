@@ -50,7 +50,6 @@ export function handleBurn(event: BurnEvent): void {
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
-  saveHistoricalPool(pool)
   pool.save()
 }
 
@@ -89,7 +88,6 @@ export function handleMint(event: MintEvent): void {
   pool.tickCumulativeEnd = pool.tickCumulativeEnd.plus(timeDiff.times(tick))
   pool.blockTimestamp = event.block.timestamp
 
-  saveHistoricalPool(pool)
   pool.save()
 }
 
@@ -169,42 +167,5 @@ export function handleSwap(event: SwapEvent): void {
   const tickString = Math.abs(pool.tick).toString().padStart(6, "0");
   pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}`;
 
-  saveHistoricalPool(pool)
   pool.save()
-}
-
-/**
- * Saves a historical version of the pool. This function is used to save a historical version
- * of the pool whenever a burn, mint, or swap event is processed. It uses a counter to generate
- * a unique ID for the historical pool, and saves the pool's token1Address, tick, tick
- * cumulative start, start tick timestamp, tick cumulative end, end tick timestamp, TWAT,
- * sqrtPriceX96, and block timestamp.
- */
-function saveHistoricalPool(pool: Pool): void {
-  let counter = Counter.load(GLOBAL)
-  if (counter == null) {
-    counter = new Counter(GLOBAL)
-    counter.value = BigInt.zero()
-  }
-
-  counter.value = counter.value.plus(BigInt.fromI32(1))
-  const poolTimestampBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(pool.blockTimestamp));
-  const counterBytes = Bytes.fromUint8Array(ByteArray.fromBigInt(counter.value));
-  const uniqueID = pool.id.concat(poolTimestampBytes).concat(counterBytes);
-
-
-  const historicPool = new HistoricPool(uniqueID)
-  historicPool.tokenAddress = pool.tokenAddress
-  historicPool.tick = pool.tick
-  historicPool.tickCumulativeStart = pool.tickCumulativeStart
-  historicPool.startTickTimestamp = pool.startTickTimestamp
-  historicPool.tickCumulativeEnd = pool.tickCumulativeEnd
-  historicPool.endTickTimestamp = pool.endTickTimestamp
-  historicPool.twat = pool.twat
-  historicPool.sqrtPriceX96 = pool.sqrtPriceX96
-  historicPool.blockTimestamp = pool.blockTimestamp
-  historicPool.score = pool.score
-
-  historicPool.save()
-  counter.save()
 }
