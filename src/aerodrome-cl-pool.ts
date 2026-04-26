@@ -149,21 +149,22 @@ export function handleSwap(event: SwapEvent): void {
   if (expectedCumulativeDelta.lt(BigInt.fromI32(0)) && !expectedCumulativeDelta.mod(timeDiff).isZero()) {
     twat = twat.minus(BigInt.fromI32(1))
   }
-  // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
-  // Price_token0/token1 = 1.0001 ^ -tick
-  pool.twat = twat
   let sqrtPriceX96 = event.params.sqrtPriceX96
   if (pool.tokenAddress.toHexString() < WETH.toHexString()) {
+    // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
+    // Price_token0/token1 = 1.0001 ^ -tick
+    twat = twat.times(BigInt.fromI32(-1))
     // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
     // sqrtPriceX96Reverse = 2^192 / ( sqrt(Price_token1/token0) * 2^96 ) = 2^192 / sqrtPriceX96 
     sqrtPriceX96 = BigInt.fromI32(2).pow(192).div(sqrtPriceX96)
   }
+  pool.twat = twat
   pool.sqrtPriceX96 = sqrtPriceX96
   pool.blockTimestamp = event.block.timestamp
 
-  const twatString = pool.twat.abs().toString().padStart(8, "0");
+  const twatString = pool.twat.toString().padStart(9, "0");
   const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
-  const tickString = Math.abs(pool.tick).toString().padStart(6, "0");
+  const tickString = BigInt.fromI32(pool.tick).toString().padStart(7, "0");
   pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}`;
 
   pool.save()
