@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: FeeAccount
-    network: sepolia
+    network: base-sepolia
     source:
-      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F" #TODO: update when launching
+      address: "0x2b6395f0A449dC467Abc1eE487915249A6931468" #TODO: update when launching
       abi: FeeAccount
-      startBlock: 9018158 #TODO: update when launching
+      startBlock: 47219900 #TODO: update when launching
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -28,31 +28,10 @@ dataSources:
         - event: MigratorUpdated(indexed address)
           handler: handleMigratorUpdated
       file: ./src/fee-account.ts
-  - kind: ethereum
-    name: LiquidityLocker
-    network: sepolia
-    source:
-      address: "0x4cb6F8d17a980Da9891C377c437749B1AAC7862F" #TODO: update when launching
-      abi: ILiquidityLocker
-      startBlock: 9018158 #TODO: update when launching
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - LiquidityLock
-        - MigratedPool
-      abis:
-        - name: ILiquidityLocker
-          file: ./abis/ILiquidityLocker.json
-      eventHandlers:
-        - event: LiquidityMigrated(indexed uint256,indexed address,indexed address)
-          handler: handleLiquidityMigrated
-      file: ./src/liquidity-locker.ts
 templates:
 - kind: ethereum
   name: LiquidityMigrator
-  network: sepolia
+  network: base-sepolia
   source:
     abi: ILiquidityMigrator
   mapping:
@@ -70,14 +49,10 @@ templates:
     eventHandlers:
       - event: PoolCreated(indexed address,indexed address,indexed address,int24,uint256,uint160)
         handler: handlePoolCreated
-      - event: LiquidityLocked(indexed address,uint256,uint256)
-        handler: handleLiquidityLocked
-      - event: PoolMigrated(indexed address,indexed address,uint256,address,uint256,uint256,uint256,uint256)
-        handler: handlePoolMigrated
     file: ./src/liquidity-migrator.ts
 - kind: ethereum
   name: CLPool
-  network: sepolia
+  network: base-sepolia
   source:
     abi: ICLPool
   mapping:
@@ -86,7 +61,6 @@ templates:
     language: wasm/assemblyscript
     entities:
       - Pool
-      - HistoricPool
       - Counter
       - LatestReward
     abis:

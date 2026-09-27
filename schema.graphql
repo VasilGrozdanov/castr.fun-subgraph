@@ -17,31 +17,6 @@ type Counter @entity{
   value: BigInt!
 }
 
-type LiquidityLock @entity(immutable: true){
-  id: String! # uint256 - the token id
-  locker: Bytes! # address
-  timestamp: BigInt! # uint256
-}
-
-type MigratorCreatedPool @entity(immutable: true){
-  id: Bytes! # address
-  token0: Bytes! # address
-  token1: Bytes! # address
-  timestamp: BigInt! # uint256
-  sqrtPriceX96: BigInt! # uint160
-}
-
-type MigratedPool @entity(immutable: true){
-  id: Bytes! # address
-  tokenAddress: Bytes! # address 
-  locker: Bytes! # address
-  tokenId: BigInt! # uint256
-  amount0: BigInt! # uint256
-  amount1: BigInt! # uint256
-  liquidity: BigInt! # uint256
-  timestamp: BigInt! # uint256
-}
-
 type Pool @entity {
   id: Bytes! # address
   tokenAddress: Bytes! # address 
@@ -55,5 +30,5 @@ type Pool @entity {
   blockTimestamp: BigInt! # Timestamp
   creationTimestamp: BigInt! # Timestamp
   isRewarded: Boolean!
-  score: String! # combined twat, sqrtPriceX96 and tick for comparing pools. Made for lexicographic comparison
+  score: String! # combined twat, sqrtPriceX96, tick and creationTimestamp for comparing pools. Made for lexicographic comparison
 }
