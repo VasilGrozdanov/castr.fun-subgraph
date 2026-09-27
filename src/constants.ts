@@ -1,4 +1,4 @@
 import { Bytes } from "@graphprotocol/graph-ts";
 
-export const WETH = Bytes.fromHexString("0x4200000000000000000000000000000000000006")
+export const USDC = Bytes.fromHexString("0x3600000000000000000000000000000000000000")
 export const ONE = "1"

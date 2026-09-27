@@ -8,7 +8,7 @@ import {
   LatestReward
 } from "../generated/schema"
 import { BigInt } from "@graphprotocol/graph-ts";
-import { ONE, WETH } from "./constants";
+import { ONE, USDC } from "./constants";
 
 /**
  * Handles a burn event in the Aerodrome CL pool.
@@ -107,7 +107,7 @@ export function handleMint(event: MintEvent): void {
  * twat value.
  *
  * Additionally, the function calculates the sqrtPriceX96 value by reversing it
- * if token1 is WETH, and updates the pool's sqrtPriceX96 value.
+ * if token1 is USDC, and updates the pool's sqrtPriceX96 value.
  *
  * Finally, it updates the pool's block timestamp and saves the historical pool
  * data.
@@ -149,11 +149,11 @@ export function handleSwap(event: SwapEvent): void {
     twat = twat.minus(BigInt.fromI32(1))
   }
   let sqrtPriceX96 = event.params.sqrtPriceX96
-  if (pool.tokenAddress.toHexString() < WETH.toHexString()) {
-    // reverse if token1 is WETH. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
+  if (pool.tokenAddress.toHexString() < USDC.toHexString()) {
+    // reverse if token1 is USDC. Price_token1/token0 = 1.0001 ^ tick, Price_token0/token1 = 1 / Price_token1/token0 =>
     // Price_token0/token1 = 1.0001 ^ -tick
     twat = twat.times(BigInt.fromI32(-1))
-    // reverse if token1 is WETH. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
+    // reverse if token1 is USDC. sqrtPriceX96 = sqrt(Price_token1/token0)*2^96, Price_token1/token0 = 1 / Price_token0/token1 =>
     // sqrtPriceX96Reverse = 2^192 / ( sqrt(Price_token1/token0) * 2^96 ) = 2^192 / sqrtPriceX96 
     sqrtPriceX96 = BigInt.fromI32(2).pow(192).div(sqrtPriceX96)
   }
