@@ -1,8 +1,4 @@
-import {
-    PoolCreated as PoolCreatedEvent,
-    LiquidityLocked as LiquidityLockedEvent,
-    PoolMigrated as PoolMigratedEvent,
-} from "../generated/templates/LiquidityMigrator/ILiquidityMigrator"
+import { PoolCreated as PoolCreatedEvent } from "../generated/templates/LiquidityMigrator/ILiquidityMigrator"
 import { Pool } from "../generated/schema"
 import { CLPool } from "../generated/templates"
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -33,7 +29,7 @@ export function handlePoolCreated(event: PoolCreatedEvent): void {
     pool.isRewarded = false
     const twatString = pool.twat.abs().toString().padStart(6, "0");
     const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
-    const tickString = Math.abs(pool.tick).toString().padStart(6, "0");
+    const tickString = BigInt.fromI32(Math.abs(pool.tick)).toString().padStart(6, "0");
     const creationTimestampString = pool.creationTimestamp.toString();
     pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}_${creationTimestampString}`;
 

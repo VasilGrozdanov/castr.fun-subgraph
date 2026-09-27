@@ -12,11 +12,6 @@ type Reward @entity(immutable: true) {
   blockTimestamp: BigInt! # Timestamp
 }
 
-type Counter @entity{
-  id: String!
-  value: BigInt!
-}
-
 type Pool @entity {
   id: Bytes! # address
   tokenAddress: Bytes! # address 

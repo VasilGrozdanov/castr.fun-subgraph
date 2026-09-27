@@ -5,11 +5,10 @@ import {
 } from "../generated/templates/CLPool/ICLPool"
 import {
   Pool,
-  Counter,
   LatestReward
 } from "../generated/schema"
-import { BigInt, Bytes, ByteArray } from "@graphprotocol/graph-ts";
-import { ONE, WETH, GLOBAL } from "./constants";
+import { BigInt } from "@graphprotocol/graph-ts";
+import { ONE, WETH } from "./constants";
 
 /**
  * Handles a burn event in the Aerodrome CL pool.
@@ -162,10 +161,11 @@ export function handleSwap(event: SwapEvent): void {
   pool.sqrtPriceX96 = sqrtPriceX96
   pool.blockTimestamp = event.block.timestamp
 
-  const twatString = pool.twat.toString().padStart(9, "0");
+  const twatString = pool.twat.abs().toString().padStart(6, "0");
   const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
-  const tickString = BigInt.fromI32(pool.tick).toString().padStart(7, "0");
-  pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}`;
+  const tickString = BigInt.fromI32(Math.abs(pool.tick)).toString().padStart(6, "0");
+  const creationTimestampString = pool.creationTimestamp.toString();
+  pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}_${creationTimestampString}`;
 
   pool.save()
 }

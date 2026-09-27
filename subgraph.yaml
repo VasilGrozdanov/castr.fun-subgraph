@@ -40,9 +40,6 @@ templates:
     language: wasm/assemblyscript
     entities:
       - Pool
-      - MigratorCreatedPool
-      - LiquidityLock
-      - MigratedPool
     abis:
       - name: ILiquidityMigrator
         file: ./abis/ILiquidityMigrator.json
