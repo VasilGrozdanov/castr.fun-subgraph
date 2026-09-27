@@ -163,7 +163,7 @@ export function handleSwap(event: SwapEvent): void {
 
   const twatString = pool.twat.abs().toString().padStart(6, "0");
   const sqrtPriceX96String = pool.sqrtPriceX96.toString().padStart(49, "0");
-  const tickString = BigInt.fromI32(Math.abs(pool.tick)).toString().padStart(6, "0");
+  const tickString = BigInt.fromI32(pool.tick).abs().toString().padStart(6, "0");
   const creationTimestampString = pool.creationTimestamp.toString();
   pool.score = `${twatString}_${sqrtPriceX96String}_${tickString}_${creationTimestampString}`;
 
