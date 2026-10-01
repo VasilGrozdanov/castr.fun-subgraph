@@ -1,12 +1,12 @@
 import { PoolCreated as PoolCreatedEvent } from "../generated/templates/LiquidityMigrator/ILiquidityMigrator"
 import { Pool } from "../generated/schema"
-import { CLPool } from "../generated/templates"
+import { UniswapV3Pool } from "../generated/templates"
 import { BigInt } from "@graphprotocol/graph-ts";
 import { WETH } from "./constants";
 
 
 export function handlePoolCreated(event: PoolCreatedEvent): void {
-    CLPool.create(event.params.pool)
+    UniswapV3Pool.create(event.params.pool)
 
     const pool = new Pool(event.params.pool)
     const isToken1 = event.params.token0.equals(WETH)

@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: FeeAccount
-    network: base-sepolia
+    network: robinhood-testnet
     source:
-      address: "0x2b6395f0A449dC467Abc1eE487915249A6931468" #TODO: update when launching
+      address: "0x962BAE7Df508C4e7f4532B658c22a099B8782439" #TODO: update when launching
       abi: FeeAccount
-      startBlock: 47219900 #TODO: update when launching
+      startBlock: 123811842 #TODO: update when launching
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -31,7 +31,7 @@ dataSources:
 templates:
 - kind: ethereum
   name: LiquidityMigrator
-  network: base-sepolia
+  network: robinhood-testnet
   source:
     abi: ILiquidityMigrator
   mapping:
@@ -48,10 +48,10 @@ templates:
         handler: handlePoolCreated
     file: ./src/liquidity-migrator.ts
 - kind: ethereum
-  name: CLPool
-  network: base-sepolia
+  name: UniswapV3Pool
+  network: robinhood-testnet
   source:
-    abi: ICLPool
+    abi: IUniswapV3Pool
   mapping:
     kind: ethereum/events
     apiVersion: 0.0.7
@@ -61,8 +61,8 @@ templates:
       - Counter
       - LatestReward
     abis:
-      - name: ICLPool
-        file: ./abis/ICLPool.json
+      - name: IUniswapV3Pool
+        file: ./abis/IUniswapV3Pool.json
     eventHandlers:
       - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
         handler: handleBurn
@@ -70,4 +70,4 @@ templates:
         handler: handleMint
       - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
         handler: handleSwap
-    file: ./src/aerodrome-cl-pool.ts
+    file: ./src/uniswap-v3-pool.ts

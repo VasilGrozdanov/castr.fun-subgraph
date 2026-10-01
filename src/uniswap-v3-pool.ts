@@ -2,7 +2,7 @@ import {
   Burn as BurnEvent,
   Mint as MintEvent,
   Swap as SwapEvent
-} from "../generated/templates/CLPool/ICLPool"
+} from "../generated/templates/UniswapV3Pool/IUniswapV3Pool"
 import {
   Pool,
   LatestReward
@@ -11,7 +11,7 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { ONE, WETH } from "./constants";
 
 /**
- * Handles a burn event in the Aerodrome CL pool.
+ * Handles a burn event in the UniswapV3 pool.
  *
  * This function processes a burn event by updating the pool's tick cumulative
  * values and timestamps. It loads the pool and the latest reward data from
